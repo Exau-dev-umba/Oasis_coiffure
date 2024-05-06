@@ -1,11 +1,18 @@
+import 'dart:ffi';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oasis_coiffure/models/CoiffureModel.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/utils/ColorsPage.dart';
 import 'package:oasis_coiffure/utils/Routes.dart';
 import 'package:oasis_coiffure/widgets/BoutonWidget.dart';
 
 class DetailCoiffurePage extends StatefulWidget {
-  const DetailCoiffurePage({Key? key}) : super(key: key);
+  final CoiffureModel coiffure;
+
+  const DetailCoiffurePage({Key? key, required this.coiffure})
+      : super(key: key);
 
   @override
   State<DetailCoiffurePage> createState() => _DetailCoiffurePageState();
@@ -13,6 +20,8 @@ class DetailCoiffurePage extends StatefulWidget {
 
 class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
   late DateTime selectedDate = DateTime.now();
+  late String selectedDateFinal= DateTime.now().toString();
+  String? currentHeure;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -41,7 +50,8 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
           child: Text(
             "Reservation coiffure",
             style: TextStyle(
-                color: ColorPages.COLOR_DORE_FONCE, fontWeight: FontWeight.bold),
+                color: ColorPages.COLOR_DORE_FONCE,
+                fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -52,18 +62,58 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
   }
 
   Widget _body() {
+    List<String> options = ['10:00-11:00', '11:00-12:00', '12:00-13:00'];
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20.sp),
         child: Column(
           children: [
             _details(),
-            SizedBox(height: 3.h,),
-            _text(),
+            SizedBox(
+              height: 3.h,
+            ),
+            _text('Selectionner une date de reservation'),
             _select_date(),
-            _select_heure(),
+            SizedBox(
+              height: 3.h,
+            ),
+            _text("Choisissez l'interval d'heure"),
+            Container(
+              width: Adaptive.w(double.infinity),
+              child: DropdownButton(
+                  value: currentHeure,
+                  hint: Text("Selectioner", style: TextStyle(color: ColorPages.COLOR_BLANC),),
+                  dropdownColor: ColorPages.COLOR_NOIR,
+                  style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
+                  items: options.map<DropdownMenuItem<String>>((value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? value){
+                    setState(() {
+                      currentHeure = value;
+                      print("object : $currentHeure");
+                    });
+                  }
+              ),
+            ),
             _message(),
-            _bouton()
+            BoutonWidget(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  Routes.PaiementPage,
+                  arguments: {
+                    "coiffure": widget.coiffure.toJson(),
+                    "heure": currentHeure,
+                    "date": selectedDateFinal
+                  }
+                );
+              },
+              text: "Prendre rendez-vous",
+            )
           ],
         ),
       ),
@@ -76,10 +126,10 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
         Row(
           children: [
             Text(
-              'Nom du coiffeur: ',
+              'Nom du coiffure: ',
               style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
             ),
-            Text("Jessy F.",
+            Text(widget.coiffure.name ?? "",
                 style: TextStyle(color: ColorPages.COLOR_BLANC))
           ],
         ),
@@ -93,10 +143,11 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
         Row(
           children: [
             Text(
-              'Experience : ',
+              'Specialisation : ',
               style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
             ),
-            Text("2 ans", style: TextStyle(color: ColorPages.COLOR_BLANC))
+            Text("${widget.coiffure.specialisation}",
+                style: TextStyle(color: ColorPages.COLOR_BLANC))
           ],
         ),
         SizedBox(
@@ -109,14 +160,12 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
         Row(
           children: [
             Text(
-              'Téléphone Oasis: ',
+              'Prix: ',
               style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
             ),
             GestureDetector(
-              onTap: (){
-
-              },
-              child: Text("0899999999",
+              onTap: () {},
+              child: Text("\$${widget.coiffure.price}",
                   style: TextStyle(color: ColorPages.COLOR_BLANC)),
             ),
           ],
@@ -135,18 +184,26 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
   Widget _select_date() {
     return GestureDetector(
       onTap: () {
-        _selectDate(context);
+        setState(() {
+          _selectDate(context);
+          selectedDateFinal = '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}';
+
+        });
       },
       child: AbsorbPointer(
         child: TextFormField(
           style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
           decoration: InputDecoration(
-            labelText: 'Date',labelStyle: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
-            suffixIcon: Icon(Icons.calendar_today,color: ColorPages.COLOR_DORE_FONCE,),
+            labelText: 'Date',
+            labelStyle: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
+            suffixIcon: Icon(
+              Icons.calendar_today,
+              color: ColorPages.COLOR_DORE_FONCE,
+            ),
           ),
           controller: TextEditingController(
             text: selectedDate != null
-                ? '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'
+                ? '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}'
                 : '',
           ),
         ),
@@ -154,49 +211,107 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
     );
   }
 
-  Widget _text(){
+  Widget _text(String text) {
     return Container(
       alignment: Alignment.centerLeft,
-      child:Text('Selectionner une date de reservation',style: TextStyle(color: ColorPages.COLOR_BLANC,fontWeight: FontWeight.bold),) ,
+      child: Text(
+        text,
+        style: TextStyle(
+            color: ColorPages.COLOR_BLANC, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget heure_select() {
+    List<String> options = ['10:00-11:00', '11:00-12:00', '12:00-13:00'];
+    String? currentValue;
+    // int selectedIndex = 0;
+    return Container(
+      width: Adaptive.w(double.infinity),
+      child: DropdownButton(
+        value: currentValue,
+          hint: Text("Selectioner", style: TextStyle(color: ColorPages.COLOR_BLANC),),
+          dropdownColor: ColorPages.COLOR_NOIR,
+          style: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
+          items: options.map<DropdownMenuItem<String>>((value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? value){
+          setState(() {
+            currentValue = value;
+            print("object : $currentValue");
+          });
+          }
+      ),
     );
   }
 
   Widget _select_heure() {
     bool statut = false;
+    List<String> options = ['10:00-11:00', '11:00-12:00', '12:00-13:00'];
+    String currentValue = options[0];
+    int selectedIndex = 0;
     return Column(
       children: [
-        Row(
+/*        RadioListTile(
+            value: options[0],
+            groupValue: currentValue,
+            onChanged: (value) {
+              setState(() {
+                currentValue = value.toString();
+              });
+            }
+        )*/
+/*        Row(
           children: [
             Container(
-              width: Adaptive.w(30),
+              width: Adaptive.w(35),
               height: 10.h,
               margin: EdgeInsets.only(right: 20.sp),
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Column(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      statut = true;
-                    });
-                  },
-                    child: Text("10:00-11:00",
-                      style: TextStyle(color: ColorPages.COLOR_BLANC),), style: ElevatedButton.styleFrom(
-                        foregroundColor: ColorPages.COLOR_DORE_FONCE, backgroundColor: Colors.transparent,
-                        side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.sp),
-                        )),)
-
+                  Wrap(
+                    spacing: 10,
+                    children: [
+                      for (int i = 0; i < options.length; i++)
+                        ChoiceChip(
+                          padding: EdgeInsets.all(12.sp),
+                          color:
+                              MaterialStatePropertyAll(ColorPages.COLOR_NOIR),
+                          label: Text(options[i]),
+                          selected: selectedIndex == i,
+                          labelStyle: statut == true
+                              ? TextStyle(
+                                  color: ColorPages.COLOR_NOIR,
+                                  fontSize: 14,
+                                )
+                              : TextStyle(
+                                  color: ColorPages.COLOR_BLANC,
+                                  fontSize: 14,
+                                ),
+                          selectedColor: ColorPages.COLOR_DORE_FONCE,
+                          disabledColor: ColorPages.COLOR_NOIR,
+                          onSelected: (bool value) {
+                            setState(() {
+                              selectedIndex = value ? i : -1;
+                            });
+                          },
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
             Container(
-              width: Adaptive.w(30),
+              width: Adaptive.w(35),
               height: 10.h,
               margin: EdgeInsets.only(right: 20.sp),
               decoration: BoxDecoration(
@@ -206,73 +321,88 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: (){},
-                    child: Text("08:00-09:00",
-                      style: TextStyle(color: ColorPages.COLOR_BLANC),), style: ElevatedButton.styleFrom(
-                        foregroundColor: ColorPages.COLOR_DORE_FONCE, backgroundColor: Colors.transparent,
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text(
+                      "08:00-09:00",
+                      style: TextStyle(color: ColorPages.COLOR_BLANC),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: ColorPages.COLOR_DORE_FONCE,
+                        backgroundColor: Colors.transparent,
                         side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.sp),
-                        )),)
-
-                ],
-              ),
-            ),
-          ],
-        ),  Row(
-          children: [
-            Container(
-              width: Adaptive.w(30),
-              height: 10.h,
-              margin: EdgeInsets.only(right: 20.sp),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8.sp),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(onPressed: (){},
-                      child: Text("13:00-14:00",
-                        style: TextStyle(color: ColorPages.COLOR_BLANC),), style: ElevatedButton.styleFrom(
-                        foregroundColor: ColorPages.COLOR_DORE_FONCE, backgroundColor: Colors.transparent,
-                        side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.sp),
-                        )),)
-
-                ],
-              ),
-            ),
-            Container(
-              width: Adaptive.w(30),
-              height: 10.h,
-              margin: EdgeInsets.only(right: 20.sp),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8.sp),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(onPressed: (){},
-                    child: Text("15:00-16:00",
-                      style: TextStyle(color: ColorPages.COLOR_BLANC),), style: ElevatedButton.styleFrom(
-                        foregroundColor: ColorPages.COLOR_DORE_FONCE, backgroundColor: Colors.transparent,
-                        side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.sp),
-                        )),)
-
+                        )),
+                  )
                 ],
               ),
             ),
           ],
         ),
-
+        Row(
+          children: [
+            Container(
+              width: Adaptive.w(35),
+              height: 10.h,
+              margin: EdgeInsets.only(right: 20.sp),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(8.sp),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text(
+                      "10:00-11:00",
+                      style: TextStyle(color: ColorPages.COLOR_BLANC),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: ColorPages.COLOR_DORE_FONCE,
+                        backgroundColor: Colors.transparent,
+                        side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.sp),
+                        )),
+                  )
+                ],
+              ),
+            ),
+            Container(
+              width: Adaptive.w(35),
+              height: 10.h,
+              margin: EdgeInsets.only(right: 20.sp),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(8.sp),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text(
+                      "10:00-11:00",
+                      style: TextStyle(color: ColorPages.COLOR_BLANC),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: ColorPages.COLOR_DORE_FONCE,
+                        backgroundColor: Colors.transparent,
+                        side: BorderSide(color: ColorPages.COLOR_DORE_FONCE),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.sp),
+                        )),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),*/
       ],
     );
   }
@@ -281,8 +411,8 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
     return Container(
       child: TextFormField(
         style: TextStyle(
-          color: ColorPages
-              .COLOR_DORE_FONCE, // Couleur du texte lorsqu'on saisit
+          color:
+              ColorPages.COLOR_DORE_FONCE, // Couleur du texte lorsqu'on saisit
         ),
         maxLength: 6,
         decoration: InputDecoration(
@@ -291,13 +421,14 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
           hintStyle: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
           filled: true,
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: ColorPages.COLOR_DORE_FONCE)
-          ),
+              borderSide: BorderSide(color: ColorPages.COLOR_DORE_FONCE)),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: Adaptive.w(0.3), color: ColorPages.COLOR_DORE_FONCE),
+            borderSide: BorderSide(
+                width: Adaptive.w(0.3), color: ColorPages.COLOR_DORE_FONCE),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(width: Adaptive.w(0.3) , color: ColorPages.COLOR_DORE_FONCE),
+            borderSide: BorderSide(
+                width: Adaptive.w(0.3), color: ColorPages.COLOR_DORE_FONCE),
             borderRadius: BorderRadius.all(Radius.circular(12.sp)),
           ),
         ),
@@ -309,7 +440,10 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
     return Container(
       child: BoutonWidget(
         onPressed: () {
-          Navigator.pushNamed(context, Routes.PaiementPage);
+          Navigator.pushNamed(
+              context,
+              Routes.PaiementPage,
+          );
         },
         text: "Prendre rendez-vous",
       ),

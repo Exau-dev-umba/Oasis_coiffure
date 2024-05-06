@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oasis_coiffure/controllers/ReservationController.dart';
+import 'package:oasis_coiffure/controllers/SpecialisationController.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/utils/ColorsPage.dart';
 import 'package:oasis_coiffure/utils/Routes.dart';
@@ -13,6 +16,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+      var specialisation = context.read<SpecialisationController>();
+      specialisation.getSpecialisations();
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,62 +189,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _cardModel2() {
-    return SingleChildScrollView(
+    var specialisation = context.read<SpecialisationController>();
+    return ListView.separated(
+      separatorBuilder: (context, index) => SizedBox(width: Adaptive.w(5),),
       scrollDirection: Axis.horizontal,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.sp),
-        child: Row(
-          children: [
-            Container(
-              width: Adaptive.w(25),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("images/coiffure_model/Nuque arrondie.webp"),
-                  SizedBox(height: 2.h,),
-                  Text("Nuque arrondie", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
-                ],
-              ),
-            ),
-            SizedBox(width: Adaptive.w(5),),
-            Container(
-              width: Adaptive.w(25),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("images/coiffure_model/Nuque droite.webp"),
-                  SizedBox(height: 2.h,),
-                  Text("Nuque droite", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
-                ],
-              ),
-            ),
-            SizedBox(width: Adaptive.w(5),),
-            Container(
-              width: Adaptive.w(25),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("images/coiffure_model/Tour d’oreille.webp"),
-                  SizedBox(height: 2.h,),
-                  Text("Tour d’oreille", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
-                ],
-              ),
-            ),
-            SizedBox(width: Adaptive.w(5),),
-            Container(
-              width: Adaptive.w(25),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("images/coiffure_model/Désépaissir les cheveux.webp"),
-                  SizedBox(height: 2.h,),
-                  Text("Désépaissir les cheveux", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      shrinkWrap: true,
+      itemCount: specialisation.specialisations.length,
+      itemBuilder: (context, index){
+        var spec  = specialisation.specialisations[index];
+        return Container(
+          width: Adaptive.w(25),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("images/coiffure_model/Nuque arrondie.webp"),
+              SizedBox(height: 2.h,),
+              Text("${spec.name}", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -347,7 +322,7 @@ class _HomePageState extends State<HomePage> {
               imagePath: "images/image3.jpg",
               buttonText: "Choisir",
               text: "Coiffeur Laurent",
-              text_coif: "Coiffeure",
+              price_coif: "Coiffeure",
               text_annee: "2 ans",
               onPressed: (){
                 Navigator.pushNamed(context, Routes.DetailsPage);
@@ -356,14 +331,14 @@ class _HomePageState extends State<HomePage> {
               imagePath: "images/image4.jpg",
               buttonText: "Choisir",
               text: "Coiffeur Besty",
-              text_coif: "Coiffeuse",
+              price_coif: "Coiffeuse",
               text_annee: "1 ans",
               onPressed: (){}),
           CardWidget(
               imagePath: "images/image5.jpg",
               buttonText: "Choisir",
               text: "Coiffeur Jessy",
-              text_coif: "Coiffeur",
+              price_coif: "Coiffeur",
               text_annee: "5 ans d'expérience",
               onPressed: (){})
         ],

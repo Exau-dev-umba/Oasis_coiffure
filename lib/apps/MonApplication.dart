@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:oasis_coiffure/controllers/ReservationController.dart';
+import 'package:oasis_coiffure/controllers/SpecialisationController.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/controllers/CoiffureController.dart';
@@ -22,7 +24,9 @@ class MonApplication extends StatelessWidget {
       builder: (context, orientation, screenType) {
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider(create: (_)=> CoiffureController(stockage:stockage))
+            ChangeNotifierProvider(create: (_)=> CoiffureController(stockage:stockage)),
+            ChangeNotifierProvider(create: (_)=> ReservationController(stockage:stockage)),
+            ChangeNotifierProvider(create: (_)=> SpecialisationController(stockage:stockage)),
           ],
           child: MaterialApp(
               debugShowCheckedModeBanner: false,

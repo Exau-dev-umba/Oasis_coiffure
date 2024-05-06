@@ -32,7 +32,7 @@ Future<dynamic> getData(String urlApi, {String? token}) async {
     var url = Uri.parse("${Constantes.BASE_URL}$urlApi");
     var reponse = await http.get(url,
         headers: {
-          "Authorization":"Bearer ${token??storage.read(StockageKeys.token)}"}).timeout(Duration(seconds: 2)
+          "Authorization":"Bearer ${token??storage.read(StockageKeys.token)}"}).timeout(Duration(seconds: 5)
     );
     if (reponse.statusCode == 200) {
       return json.decode(reponse.body);

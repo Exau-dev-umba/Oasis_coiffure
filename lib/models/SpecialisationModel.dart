@@ -11,7 +11,7 @@ String specialisationModelToJson(SpecialisationModel data) => json.encode(data.t
 class SpecialisationModel {
   int? id;
   String? name;
-  bool? isActive;
+  int? isActive;
 
   SpecialisationModel({
     this.id,

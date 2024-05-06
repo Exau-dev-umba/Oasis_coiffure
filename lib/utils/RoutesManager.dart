@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oasis_coiffure/models/CoiffureModel.dart';
 import 'package:oasis_coiffure/pages/authentificationCompte/ConnexionPage.dart';
 import 'package:oasis_coiffure/pages/autres/AproposPage.dart';
 import 'package:oasis_coiffure/pages/calendrier/CalendrierPage.dart';
@@ -44,11 +45,15 @@ class RoutesManager {
       case Routes.AproposPage:
         return MaterialPageRoute(builder: (_) => AproposPage());
       case Routes.DetailsPage:
-        return MaterialPageRoute(builder: (_) => DetailCoiffurePage());
+        var args = r.arguments as Map<String, dynamic>?;
+        var coiffure = CoiffureModel.fromJson(args!);
+        return MaterialPageRoute(builder: (_) => DetailCoiffurePage(coiffure: coiffure,));
       case Routes.EditerProfilPage:
         return MaterialPageRoute(builder: (_) => EditerProfilPage());
       case Routes.PaiementPage:
-        return MaterialPageRoute(builder: (_) => PaiementPage());
+        var args = r.arguments as Map<String, dynamic>?;
+        // var coiffure = CoiffureModel.fromJson(args!);
+        return MaterialPageRoute(builder: (_) => PaiementPage(resumeCoiffure: args,));
       default:
         return MaterialPageRoute(builder: (_) => CoiffurePage());
     }

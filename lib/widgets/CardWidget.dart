@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/utils/ColorsPage.dart';
@@ -5,7 +7,7 @@ import 'package:oasis_coiffure/utils/ColorsPage.dart';
 class CardWidget extends StatefulWidget {
   final String imagePath;
   final String text;
-  final String text_coif;
+  final String price_coif;
   final String text_annee;
   final String buttonText;
   final VoidCallback onPressed;
@@ -14,8 +16,8 @@ class CardWidget extends StatefulWidget {
       {required this.imagePath,
       required this.buttonText,
       required this.text,
-      required this.text_coif,
-      required this.text_annee,
+        required this.price_coif,
+       required this.text_annee,
       required this.onPressed});
 
   @override
@@ -61,7 +63,7 @@ class _CardWidgetState extends State<CardWidget> {
                         fontSize: 20.sp
                     )),
                 Text(
-                  widget.text_coif,
+                  "${widget.price_coif}",
                   style: TextStyle(
                       color: ColorPages.COLOR_DORE_FONCE,
                       fontWeight: FontWeight.bold

@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/controllers/CoiffureController.dart';
@@ -14,13 +16,14 @@ class CoiffurePage extends StatefulWidget {
   State<CoiffurePage> createState() => _CoiffurePageState();
 }
 
-class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMixin {
+class _CoiffurePageState extends State<CoiffurePage>
+    with TickerProviderStateMixin {
   late final AnimationController _controller =
-  AnimationController(vsync: this, duration: Duration(seconds: 1))
-    ..repeat(reverse: true);
+      AnimationController(vsync: this, duration: Duration(seconds: 1))
+        ..repeat(reverse: true);
 
-  late final Animation<double> _animation =
-  CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
+  late final Animation<double> _animation = CurvedAnimation(
+      parent: _controller, curve: Curves.easeInOutCubicEmphasized);
 
   List<CoiffureModel> _foundCoiffures = [];
 
@@ -29,7 +32,6 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       var coiffureCtrl = context.read<CoiffureController>();
       coiffureCtrl.getCoiffures();
-
     });
     super.initState();
   }
@@ -51,8 +53,9 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
       results = coiffureCtrl.coiffures;
     } else {
       results = coiffureCtrl.coiffures
-          .where((coiffure) =>
-          coiffure.name!.toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .where((coiffure) => coiffure.name!
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
           .toList();
       // we use the toLowerCase() method to make it case-insensitive
     }
@@ -76,9 +79,20 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
   }
 
   Widget _body() {
+    var coiffureCtrl = context.watch<CoiffureController>();
     return Container(
       child: Column(
-        children: [_logo(), _recherche(), coiffeur_liste()],
+        children: [
+          _logo(),
+          _recherche(),
+          RefreshIndicator(
+            color: ColorPages.COLOR_DORE_FONCE,
+            onRefresh: ()async{
+               coiffureCtrl.getCoiffures();
+            },
+              child: coiffeur_liste()
+          )
+        ],
       ),
     );
   }
@@ -103,20 +117,21 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
           ),
           onChanged: (value) => _runFilter(value),
           decoration: InputDecoration(
-            suffixIcon: Icon(Icons.search, color: ColorPages.COLOR_DORE_FONCE,),
+            suffixIcon: Icon(
+              Icons.search,
+              color: ColorPages.COLOR_DORE_FONCE,
+            ),
             fillColor: ColorPages.COLOR_NOIR.withOpacity(4.sp),
             hintText: "Recherche",
             hintStyle: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
             filled: true,
             focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorPages.COLOR_DORE_FONCE)
-            ),
+                borderSide: BorderSide(color: ColorPages.COLOR_DORE_FONCE)),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                   width: Adaptive.w(0.3), color: ColorPages.COLOR_DORE_FONCE),
             ),
             border: OutlineInputBorder(
-
               borderSide: BorderSide(
                   width: Adaptive.w(0.3), color: ColorPages.COLOR_DORE_FONCE),
               borderRadius: BorderRadius.all(Radius.circular(12.sp)),
@@ -130,7 +145,9 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
       child: ElevatedButton(
         onPressed: () {},
         child: Text(
-          "Rechecrhe", style: TextStyle(color: ColorPages.COLOR_BLANC),),
+          "Rechecrhe",
+          style: TextStyle(color: ColorPages.COLOR_BLANC),
+        ),
         style: ElevatedButton.styleFrom(
             backgroundColor: ColorPages.COLOR_DORE_FONCE,
             elevation: 0,
@@ -144,207 +161,109 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
   Widget coiffeur_liste() {
     var coiff = context.watch<CoiffureController>();
     return SingleChildScrollView(
-      //scrollDirection: Axis.horizontal,
-      child: _foundCoiffures.isEmpty ?
-      ListView.builder(
-          itemCount: _foundCoiffures.length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            var coiffure = _foundCoiffures[index];
-            return CardWidget(
-                imagePath: "images/image4.jpg",
-                buttonText: "choisir",
-                text: coiffure.name!,
-                text_coif: "coiffeuse",
-                text_annee: "2 ans",
-                onPressed: () {
-                  Navigator.pushNamed(context, Routes.DetailsPage);
-                });
-          }):noData()
-    );
+        //scrollDirection: Axis.horizontal,
+        child: _foundCoiffures.isNotEmpty
+            ? ListView.builder(
+                itemCount: _foundCoiffures.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  var coiffure = _foundCoiffures[index];
+                  // CoiffureModel coiffureFilter = coiffure.isActive!=0;
+                  if(coiffure.isActive==1)
+                  return CardWidget(
+                      imagePath: "images/image4.jpg",
+                      buttonText: "choisir",
+                      text: coiffure.name ?? "",
+                      price_coif: "\$${coiffure.price}",
+                      text_annee: "2 ans",
+                      onPressed: () {
+                        Navigator.pushNamed(context, Routes.DetailsPage,
+                            arguments: coiffure.toJson());
+                      });
+                })
+            : Column(
+                children: [
+                  noData(),
+                  noData(),
+                ],
+              ));
   }
 
   noData() {
     return Container(
-      margin: EdgeInsets.only(top: 20.sp, right: 10.sp, left: 10.sp),
+      width: Adaptive.w(90),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: ColorPages.COLOR_DORE_FONCE,
+        borderRadius: BorderRadius.circular(12.sp),
+        color: Colors.grey.withOpacity(2.sp),
       ),
-      width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      margin: EdgeInsets.all(20.sp),
+      child: Row(
+        // mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            padding: EdgeInsets.all(12.sp),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    FadeTransition(
-                      opacity: _animation,
-                      child: Placeholder(
-                        color: Colors.transparent,
-                        child: CircleAvatar(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: ColorPages.COLOR_GRIS,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: Adaptive.w(3)),
-                    FadeTransition(
-                        opacity: _animation,
-                        child: Placeholder(
-                            color: Colors.transparent,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: ColorPages.COLOR_GRIS,
-                                  ),
-                                  width: Adaptive.w(15),
-                                  height: 2.h,
-                                ),
-                                SizedBox(width: 0.3.h,),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: ColorPages.COLOR_GRIS,
-                                  ),
-                                  width: Adaptive.w(15),
-                                  height: 2.h,
-                                ),
-                              ],
-                            )
-                        ))
-                  ],
-                ),
-                SizedBox(height: 3.h),
-                FadeTransition(
-                  opacity: _animation,
-                  child: Placeholder(
-                    color: Colors.transparent,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: ColorPages.COLOR_GRIS,
-                          ),
-                          width: Adaptive.w(30),
-                          height: 1.h,
-                        ),
-                        SizedBox(height: 0.3.h,),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: ColorPages.COLOR_GRIS,
-                          ),
-                          width: Adaptive.w(80),
-                          height: 1.h,
-                        ),
-                        SizedBox(height: 0.3.h,),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: ColorPages.COLOR_GRIS,
-                          ),
-                          width: Adaptive.w(90),
-                          height: 1.h,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+          FadeTransition(
+            opacity: _animation,
+            child: Placeholder(
+              color: ColorPages.COLOR_TRANSPARENT,
+              child: Container(
+                padding: EdgeInsets.all(10.sp),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.sp),
+                    child: Container(
+                      width: Adaptive.w(35),
+                      height: 20.h,
+                      color: ColorPages.COLOR_GRIS,
+                    )),
+              ),
             ),
           ),
           FadeTransition(
             opacity: _animation,
-            child: Placeholder(
-              color: Colors.transparent,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: ColorPages.COLOR_GRIS,
-                ),
-                width: Adaptive.w(double.infinity),
-                // height: 5.h,
+            child: Container(
+              padding: EdgeInsets.only(left: 10.sp),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: Adaptive.w(45),
+                    height: 1.5.h,
+                    decoration: BoxDecoration(
+                        color: ColorPages.COLOR_GRIS,
+                        borderRadius: BorderRadius.circular(50.dp)),
+                  ),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  Container(
+                    width: Adaptive.w(35),
+                    height: 1.5.h,
+                    decoration: BoxDecoration(
+                        color: ColorPages.COLOR_GRIS,
+                        borderRadius: BorderRadius.circular(50.dp)),
+                  ),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  Container(
+                    width: Adaptive.w(25),
+                    height: 1.5.h,
+                    decoration: BoxDecoration(
+                        color: ColorPages.COLOR_GRIS,
+                        borderRadius: BorderRadius.circular(50.dp)),
+                  ),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  Container(
+                    width: Adaptive.w(40),
+                    height: 1.5.h,
+                    decoration: BoxDecoration(
+                        color: ColorPages.COLOR_GRIS,
+                        borderRadius: BorderRadius.circular(50.dp)),
+                  ),
+                ],
               ),
             ),
           ),
-          Container(
-              decoration: BoxDecoration(
-                color: ColorPages.COLOR_BLANC,
-                borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(19.sp),
-                    bottomLeft: Radius.circular(19.sp)),
-              ),
-              alignment: Alignment.center,
-              width: Adaptive.w(double.infinity),
-              height: 10.h,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        FadeTransition(
-                          opacity: _animation,
-                          child: Placeholder(
-                            color: Colors.transparent,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: ColorPages.COLOR_GRIS,
-                              ),
-                              width: Adaptive.w(15),
-                              height: 3.h,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        FadeTransition(
-                          opacity: _animation,
-                          child: Placeholder(
-                            color: Colors.transparent,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: ColorPages.COLOR_GRIS
-                              ),
-                              width: Adaptive.w(15),
-                              height: 3.h,
-                            ),
-                          ),
-                        ),
-                      ]),
-                      FadeTransition(
-                        opacity: _animation,
-                        child: Placeholder(
-                          color: Colors.transparent,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: ColorPages.COLOR_GRIS,
-                            ),
-                            width: Adaptive.w(15),
-                            height: 3.h,
-                          ),
-                        ),
-                      )
-                    ]),
-              )),
         ],
       ),
     );
@@ -359,7 +278,7 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {
                 Navigator.pushNamed(context, Routes.DetailsPage);
@@ -368,42 +287,42 @@ class _CoiffurePageState extends State<CoiffurePage> with TickerProviderStateMix
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {}),
           CardWidget(
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {}),
           CardWidget(
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {}),
           CardWidget(
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {}),
           CardWidget(
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {}),
           CardWidget(
               imagePath: "images/image4.jpg",
               buttonText: "choisir",
               text: "Hena Ndombele",
-              text_coif: "coiffeuse",
+              price_coif: "coiffeuse",
               text_annee: "2 ans",
               onPressed: () {})
         ],

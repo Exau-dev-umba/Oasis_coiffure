@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:oasis_coiffure/controllers/ReservationController.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/utils/ColorsPage.dart';
 import 'package:oasis_coiffure/widgets/BoutonWidget.dart';
 
+import '../../models/CoiffureModel.dart';
+
 class PaiementPage extends StatefulWidget {
-  const PaiementPage({super.key});
+  final resumeCoiffure;
+
+  const PaiementPage({super.key, required this.resumeCoiffure});
 
   @override
   State<PaiementPage> createState() => _PaiementPageState();
 }
 
 class _PaiementPageState extends State<PaiementPage> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+      var reservationCtrl = context.read<ReservationController>();
+      reservationCtrl.getReservations();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,21 +72,21 @@ class _PaiementPageState extends State<PaiementPage> {
           Row(
             children: [
               Text("Date : ",style: TextStyle(color: ColorPages.COLOR_BLANC)),
-              Text("02/02/2024",style: TextStyle(color: ColorPages.COLOR_BLANC)),
+              Text("${widget.resumeCoiffure["date"]}",style: TextStyle(color: ColorPages.COLOR_BLANC)),
             ],
           ),
           Divider(height:2.h,color: ColorPages.COLOR_GRIS,),
           Row(
             children: [
               Text("Heure : ",style: TextStyle(color: ColorPages.COLOR_BLANC)),
-              Text("08:00-09:00",style: TextStyle(color: ColorPages.COLOR_BLANC)),
+              Text("${widget.resumeCoiffure["heure"]}",style: TextStyle(color: ColorPages.COLOR_BLANC)),
             ],
           ),
           Divider(height:2.h,color: ColorPages.COLOR_GRIS,),
           Row(
             children: [
               Text("Prix : ",style: TextStyle(color: ColorPages.COLOR_BLANC)),
-              Text("\$10",style: TextStyle(color: ColorPages.COLOR_BLANC)),
+              Text("${widget.resumeCoiffure["coiffure"]["price"]}",style: TextStyle(color: ColorPages.COLOR_BLANC)),
             ],
           ),
           Divider(height:2.h,color: ColorPages.COLOR_GRIS,),
@@ -87,6 +102,7 @@ class _PaiementPageState extends State<PaiementPage> {
   }
 
   Widget _text_paiement(){
+    var reservationCtrl = context.watch<ReservationController>();
     return Container(
       child: Column(
         children: [
@@ -103,7 +119,8 @@ class _PaiementPageState extends State<PaiementPage> {
           BoutonWidget(
               text: "Confirmer",
               onPressed: (){
-
+                var data = {};
+                // reservationCtrl.reserverPlaceCoiffure(data);
               }
           )
         ],
