@@ -44,6 +44,7 @@ dependencies:
   get_storage: ^2.1.1
   http: ^1.1.0
   provider: ^6.1.2
+  change_app_package_name: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +59,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "images/image1.png"
+  image_path: "images/LOGO OASIS RESTO ET COIFFURE-02.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -78,6 +79,7 @@ flutter:
     - images/coiffure_model/Nuque droite.webp
     - images/coiffure_model/Tour d’oreille.webp
     - images/coiffure_model/Nuque arrondie.webp
+    - images/LOGO OASIS RESTO ET COIFFURE-02.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
