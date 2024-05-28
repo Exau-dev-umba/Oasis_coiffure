@@ -25,7 +25,7 @@ class IntroPage extends StatelessWidget {
                 width: Adaptive.w(double.infinity),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("images/image5.jpg"),
+                    image: AssetImage("images/african-american-hairdresser-cuts-african-american-man-s-hair-with-clipper-clipper-haircut.jpg"),
                     fit: BoxFit.cover,
                   ),
                 ),

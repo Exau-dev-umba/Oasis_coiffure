@@ -28,7 +28,6 @@ class SpecialisationController with ChangeNotifier{
     if(reponse!=null && reponse!=[]){
       specialisations=reponse["data"].map<SpecialisationModel>((e) => SpecialisationModel.fromJson(e)).toList();
       print("DATAS: ${reponse}");
-      print("DATAS CONVERTE: ${specialisations}");
       isHttpException = false;
     }else{
       isHttpException = true;

@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
     });
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,23 +46,23 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               height: 30.h,
-              width: Adaptive.w(double.infinity) ,
+              width: Adaptive.w(double.infinity),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30.sp),
-                  bottomRight: Radius.circular(30.sp),
-                ),
-                image: DecorationImage(
-                  image: AssetImage("images/image3.jpg"),
-                  fit: BoxFit.fill,
-                ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30.sp),
+                    bottomRight: Radius.circular(30.sp),
+                  ),
+                  image: DecorationImage(
+                    image: AssetImage("images/closeup-process-trimming-hair-barber-shop.jpg"),
+                    fit: BoxFit.cover,
+                  ),
                   gradient: LinearGradient(
                       colors: [
                         ColorPages.COLOR_NOIR,
                         ColorPages.COLOR_TRANSPARENT,
                       ],
                       stops: [
-                        2.5.sp,5.sp
+                        2.5.sp, 9.sp
                       ],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter
@@ -70,13 +71,14 @@ class _HomePageState extends State<HomePage> {
             ),
             Center(
               child: Container(
-                //padding: EdgeInsets.only(top: 25.sp, left: 5.sp),
+                padding: EdgeInsets.only(top: 25.sp, left: 5.sp),
+                // margin: EdgeInsets.all(5.sp),
                 color: ColorPages.COLOR_NOIR.withOpacity(3.5.sp),
                 child: Column(
                   children: [
                     Image.asset(
                       "images/logo.png",
-                      width: Adaptive.w(40) ,
+                      width: Adaptive.w(40),
                     ),
                     RichText(
                       text: TextSpan(
@@ -106,10 +108,8 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         SizedBox(height: 5.h),
-        _text_categorie(),
-        Flexible(
-          child: _cardModel2(),
-        ),
+        // _text_categorie(),
+        _cardModel2(),
         _text_service(),
         _coiffure_liste(),
       ],
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Image.asset(
                       "images/logo.png",
-                      width: Adaptive.w(50) ,
+                      width: Adaptive.w(50),
                     ),
                     RichText(
                       text: TextSpan(
@@ -189,26 +189,59 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _cardModel2() {
-    var specialisation = context.read<SpecialisationController>();
-    return ListView.separated(
-      separatorBuilder: (context, index) => SizedBox(width: Adaptive.w(5),),
-      scrollDirection: Axis.horizontal,
-      shrinkWrap: true,
-      itemCount: specialisation.specialisations.length,
-      itemBuilder: (context, index){
-        var spec  = specialisation.specialisations[index];
-        return Container(
-          width: Adaptive.w(25),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset("images/coiffure_model/Nuque arrondie.webp"),
-              SizedBox(height: 2.h,),
-              Text("${spec.name}", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
-            ],
+    var specialisation = context.watch<SpecialisationController>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding:  EdgeInsets.symmetric(horizontal: 20.sp),
+          child: Text(
+            "Spécialisation",
+            style: TextStyle(
+                color: ColorPages.COLOR_DORE_FONCE,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.sp),
           ),
-        );
-      },
+        ),
+        Row(
+          children: specialisation.specialisations.map((e) =>
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.sp),
+                width: Adaptive.w(25),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset("images/coiffure_model/Nuque arrondie.webp"),
+                    SizedBox(height: 2.h,),
+                    Text("${e.name}", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
+                  ],
+                ),
+              )
+          ).toList(),
+        )
+        /*Container(
+          margin: EdgeInsets.symmetric(horizontal: 20.sp),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemCount: specialisation.specialisations.length,
+            itemBuilder: (context, index){
+              var spec  = specialisation.specialisations[index];
+              return Container(
+                width: Adaptive.w(25),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset("images/coiffure_model/Nuque arrondie.webp"),
+                    SizedBox(height: 2.h,),
+                    Text("${spec.name}", style: TextStyle(color: ColorPages.COLOR_BLANC, fontSize: 14.sp),)
+                  ],
+                ),
+              );
+            },
+          ),
+        ),*/
+      ],
     );
   }
 
@@ -219,7 +252,7 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             margin: EdgeInsets.all(20),
             child: Container(
-              width: Adaptive.w(50) ,
+              width: Adaptive.w(50),
               height: 40.h,
               child: GestureDetector(
                 onTap: () {},
@@ -313,7 +346,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _coiffure_liste(){
+  Widget _coiffure_liste() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -324,7 +357,7 @@ class _HomePageState extends State<HomePage> {
               text: "Coiffeur Laurent",
               price_coif: "Coiffeure",
               text_annee: "2 ans",
-              onPressed: (){
+              onPressed: () {
                 Navigator.pushNamed(context, Routes.DetailsPage);
               }),
           CardWidget(
@@ -333,14 +366,14 @@ class _HomePageState extends State<HomePage> {
               text: "Coiffeur Besty",
               price_coif: "Coiffeuse",
               text_annee: "1 ans",
-              onPressed: (){}),
+              onPressed: () {}),
           CardWidget(
               imagePath: "images/image5.jpg",
               buttonText: "Choisir",
               text: "Coiffeur Jessy",
               price_coif: "Coiffeur",
               text_annee: "5 ans d'expérience",
-              onPressed: (){})
+              onPressed: () {})
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:oasis_coiffure/controllers/ReservationController.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -18,13 +19,13 @@ class PaiementPage extends StatefulWidget {
 
 class _PaiementPageState extends State<PaiementPage> {
   @override
-  void initState() {
-    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
-      var reservationCtrl = context.read<ReservationController>();
-      reservationCtrl.getReservations();
-    });
-    super.initState();
-  }
+  // void initState() {
+  //   WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+  //     var reservationCtrl = context.read<ReservationController>();
+  //     reservationCtrl.getReservations();
+  //   });
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +56,13 @@ class _PaiementPageState extends State<PaiementPage> {
     );
   }
 
+  String formatDate(DateTime date) {
+    final formatter = DateFormat('dd-MM-yyyy');
+    return formatter.format(date);
+  }
+
   Widget _detail(){
     return Container(
-
       margin: EdgeInsets.all(20.sp),
       child: Column(
         children: [
@@ -72,7 +77,7 @@ class _PaiementPageState extends State<PaiementPage> {
           Row(
             children: [
               Text("Date : ",style: TextStyle(color: ColorPages.COLOR_BLANC)),
-              Text("${widget.resumeCoiffure["date"]}",style: TextStyle(color: ColorPages.COLOR_BLANC)),
+              Text("${formatDate(widget.resumeCoiffure["date"])}",style: TextStyle(color: ColorPages.COLOR_BLANC)),
             ],
           ),
           Divider(height:2.h,color: ColorPages.COLOR_GRIS,),

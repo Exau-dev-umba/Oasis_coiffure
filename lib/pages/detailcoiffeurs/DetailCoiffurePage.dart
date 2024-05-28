@@ -19,21 +19,23 @@ class DetailCoiffurePage extends StatefulWidget {
 }
 
 class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
-  late DateTime selectedDate = DateTime.now();
-  late String selectedDateFinal= DateTime.now().toString();
+  late DateTime selectedDateFinal = DateTime.now();
+  late String selectedDate= selectedDateFinal.toString();
   String? currentHeure;
+  bool isValidated = true;
+  List<String> options = ['10:00-11:00', '11:00-12:00', '12:00-13:00'];
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: selectedDateFinal,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
     );
 
-    if (picked != null && picked != selectedDate) {
+    if (picked != null && picked != selectedDateFinal) {
       setState(() {
-        selectedDate = picked;
+        selectedDateFinal = picked;
       });
     }
   }
@@ -62,7 +64,6 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
   }
 
   Widget _body() {
-    List<String> options = ['10:00-11:00', '11:00-12:00', '12:00-13:00'];
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20.sp),
@@ -73,14 +74,40 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
               height: 3.h,
             ),
             _text('Selectionner une date de reservation'),
-            _select_date(),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectDate(context);
+                  selectedDate = '${selectedDateFinal.day}-${selectedDateFinal.month}-${selectedDateFinal.year}';
+
+                });
+              },
+              child: AbsorbPointer(
+                child: TextFormField(
+                  style: const TextStyle(color: ColorPages.COLOR_DORE_FONCE),
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                    labelStyle: TextStyle(color: ColorPages.COLOR_DORE_FONCE),
+                    suffixIcon: Icon(
+                      Icons.calendar_today,
+                      color: ColorPages.COLOR_DORE_FONCE,
+                    ),
+                  ),
+                  controller: TextEditingController(
+                    text: selectedDateFinal != null
+                        ? '${selectedDateFinal.day}-${selectedDateFinal.month}-${selectedDateFinal.year}'
+                        : '',
+                  ),
+                ),
+              ),
+            ),
             SizedBox(
               height: 3.h,
             ),
             _text("Choisissez l'interval d'heure"),
             Container(
               width: Adaptive.w(double.infinity),
-              child: DropdownButton(
+              child: DropdownButtonFormField(
                   value: currentHeure,
                   hint: Text("Selectioner", style: TextStyle(color: ColorPages.COLOR_BLANC),),
                   dropdownColor: ColorPages.COLOR_NOIR,
@@ -91,10 +118,18 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
                       child: Text(value),
                     );
                   }).toList(),
+                  decoration: isValidated? null:const InputDecoration(
+                    errorText:  "Veuillez choisir une interval d'heure",
+                    enabledBorder: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
                   onChanged: (String? value){
                     setState(() {
                       currentHeure = value;
-                      print("object : $currentHeure");
+                      isValidated = true;
                     });
                   }
               ),
@@ -102,15 +137,22 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
             _message(),
             BoutonWidget(
               onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  Routes.PaiementPage,
-                  arguments: {
-                    "coiffure": widget.coiffure.toJson(),
-                    "heure": currentHeure,
-                    "date": selectedDateFinal
+                setState(() {
+                  if(currentHeure == null){
+                    isValidated = false;
+                  } else{
+                    Navigator.pushNamed(
+                        context,
+                        Routes.PaiementPage,
+                        arguments: {
+                          "coiffure": widget.coiffure.toJson(),
+                          "heure": currentHeure,
+                          "date": selectedDateFinal,
+                          "specialisation": widget.coiffure.specialisation,
+                        }
+                    );
                   }
-                );
+                });
               },
               text: "Prendre rendez-vous",
             )
@@ -186,7 +228,7 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
       onTap: () {
         setState(() {
           _selectDate(context);
-          selectedDateFinal = '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}';
+          selectedDate = '${selectedDateFinal.day}-${selectedDateFinal.month}-${selectedDateFinal.year}';
 
         });
       },
@@ -202,8 +244,8 @@ class _DetailCoiffurePageState extends State<DetailCoiffurePage> {
             ),
           ),
           controller: TextEditingController(
-            text: selectedDate != null
-                ? '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}'
+            text: selectedDateFinal != null
+                ? '${selectedDateFinal.day}-${selectedDateFinal.month}-${selectedDateFinal.year}'
                 : '',
           ),
         ),

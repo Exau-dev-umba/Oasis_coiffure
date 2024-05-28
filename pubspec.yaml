@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   flutter_launcher_icons: ^0.13.1
-  flutter_spinkit: ^5.2.0
+#  flutter_spinkit: ^5.2.0
   introduction_screen: ^3.1.12
   image_picker: ^1.0.7
   url_launcher: ^6.2.3
@@ -45,6 +45,8 @@ dependencies:
   http: ^1.1.0
   provider: ^6.1.2
   change_app_package_name: ^1.1.0
+  loading_animation_widget: ^1.2.1
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -75,11 +77,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/
-    - images/coiffure_model/Désépaissir les cheveux.webp
-    - images/coiffure_model/Nuque droite.webp
-    - images/coiffure_model/Tour d’oreille.webp
-    - images/coiffure_model/Nuque arrondie.webp
-    - images/LOGO OASIS RESTO ET COIFFURE-02.png
+    - images/coiffure_model/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -99,6 +99,7 @@ class _CreationComptePageState extends State<CreationComptePage> {
           ChampSaisieWidget(
             prefixIcon: Icons.email,
             ctrl: _email,
+            required: true,
             validator: (String? value) {
 
               if ( value == null || value.isEmpty) {
@@ -122,6 +123,8 @@ class _CreationComptePageState extends State<CreationComptePage> {
           ChampSaisieWidget(
             prefixIcon: Icons.lock,
             ctrl: _password,
+            isPassword: true,
+            required: true,
             validator: (String? value) {
 
               if ( value == null || value.isEmpty) {

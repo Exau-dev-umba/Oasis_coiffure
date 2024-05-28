@@ -106,6 +106,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
           ChampSaisieWidget(
             prefixIcon: Icons.email,
             ctrl: _email,
+            required: true,
             validator: (String? value) {
               if (value == null || value.isEmpty) {
                 return "Champs obligatoire*";
@@ -121,6 +122,8 @@ class _ConnexionPageState extends State<ConnexionPage> {
           ChampSaisieWidget(
             prefixIcon: Icons.lock,
             ctrl: _password,
+            required: true,
+            isPassword: true,
             validator: (String? value) {
               if (value == null || value.isEmpty) {
                 return "Champs obligatoire*";

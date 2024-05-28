@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:oasis_coiffure/utils/VerificationConnexion.dart';
+import 'package:oasis_coiffure/widgets/ToastWidget.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:oasis_coiffure/pages/demarrage/IntroPage.dart';
 import 'package:oasis_coiffure/utils/ColorsPage.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:oasis_coiffure/utils/Routes.dart';
 
 class SplashPage extends StatefulWidget {
@@ -16,15 +20,19 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    setState(() {
+      _initializeData();
+    });
   }
 
-  void _initializeData() {
-    Future.delayed(Duration(seconds: 4)).then((_) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => IntroPage()),
-      );
+  Future<void> _initializeData() async {
+    // bool isOnline = await VerificationConnexion.hasNetwork();
+    Future.delayed(Duration(seconds: 4)).then((_) async {
+      VerificationConnexion.checkConnectionPeriodically(() {
+        Navigator.pushNamedAndRemoveUntil(context, Routes.IntroPage, (route) => false);
+        print("CONNEXION RETABLI");
+        // ToastWidget.showToast('Connexion établie !');
+      });
     });
   }
 
@@ -41,13 +49,16 @@ class _SplashPageState extends State<SplashPage> {
             children: [
               Image.asset(
                 "images/logo.png",
-                width: Adaptive.w(80) ,
+                width: Adaptive.w(70),
                 height: 25.h,
               ),
-              SpinKitHourGlass(
+              SizedBox(
+                height: 30.h,
+              ),
+              LoadingAnimationWidget.inkDrop(
                 color: ColorPages.COLOR_DORE_FONCE,
-                size: 25.sp,
-              )
+                size: 30,
+              ),
             ],
           ),
         ),
